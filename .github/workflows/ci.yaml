@@ -1,0 +1,82 @@
+name: Tests
+
+on:
+  push:
+    paths:
+      - ".cargo/*.toml"
+      - ".github/workflows/*.yaml"
+      - "Cargo.*"
+      - "mutants_attrs/**"
+      - "**/src/**"
+      - "**/tests/**"
+
+# see https://matklad.github.io/2021/09/04/fast-rust-builds.html
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  CI: 1
+  RUST_BACKTRACE: short
+  RUSTUP_MAX_RETRIES: 10
+  CARGO_MUTANTS_MINIMUM_TEST_TIMEOUT: 60
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: ci-${{ github.repository }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    # Setup Rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          components: rustfmt
+      - name: Rustfmt
+        run: cargo +nightly fmt --all -- --check
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+      - name: Show Cargo and rustc version
+        run: |
+          cargo --version
+          rustc --version
+
+      - name: Build
+        run: cargo build --all-targets --all-features
+      - name: Test
+        run: cargo test --all-targets --all-features --workspace
+
+      - name: Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Check semver
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+
+      # Use cargo tree, and fail if openssl is present
+      - name: Check openssl
+        run: cargo tree | grep openssl && exit 1 || exit 0
+
+      - name: Install cargo-mutants
+        run: cargo install cargo-mutants
+
+      - run: cargo mutants -vV --in-place
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mutants-out
+          path: mutants.out
+
+      # Build an artifact for this job
+      - name: Build release binary
+        run: cargo build --release
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: send-server
+          path: |
+            target/release/server
