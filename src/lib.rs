@@ -119,17 +119,6 @@ mod tests {
         assert_eq!(err.to_string(), "Invalid check bit");
     }
 
-    #[cfg(feature = "serde")]
-    #[test]
-    fn test_serde_roundtrip() {
-        let id = UploadId::try_from("wcfytxww4opin4jmjjes4ccfd".to_string())
-            .expect("Failed to decode UploadId");
-        let serialized = serde_json::to_string(&id).expect("Failed to serialize UploadId");
-        let deserialized: UploadId =
-            serde_json::from_str(&serialized).expect("Failed to deserialize UploadId");
-        assert_eq!(id, deserialized);
-    }
-
     #[test]
     fn test_too_short_error() {
         let invalid_id = String::from("aa");

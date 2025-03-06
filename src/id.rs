@@ -158,4 +158,24 @@ mod serde_impl {
             s.parse().map_err(D::Error::custom)
         }
     }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn test_serde_roundtrip() {
+            let id = UploadId::try_from("wcfytxww4opin4jmjjes4ccfd".to_string())
+                .expect("Failed to decode UploadId");
+            let serialized = serde_json::to_string(&id).expect("Failed to serialize UploadId");
+
+            insta::assert_json_snapshot!(serialized);
+
+            let deserialized: UploadId =
+                serde_json::from_str(&serialized).expect("Failed to deserialize UploadId");
+            assert_eq!(id, deserialized);
+
+            insta::assert_debug_snapshot!(deserialized);
+        }
+    }
 }

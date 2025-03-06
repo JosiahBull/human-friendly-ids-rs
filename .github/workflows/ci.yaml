@@ -65,7 +65,7 @@ jobs:
       - name: Install cargo-mutants
         run: cargo install cargo-mutants
 
-      - run: cargo mutants -vV --in-place
+      - run: cargo mutants -vV --in-place --all-features
       - uses: actions/upload-artifact@v4
         with:
           name: mutants-out

@@ -24,4 +24,4 @@ serde = ["dep:serde"]
 mutants = "0.0.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-insta = "1.42.2"
+insta = { version = "1.42.2", features = ["json"] }

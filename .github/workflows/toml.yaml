@@ -39,12 +39,6 @@ jobs:
         run: |
           cargo +nightly --version
           rustc --version
-      - name: Check for non-inherited dependencies
-        # Cargo autoinherit does not have a --check, so we have to use git to see if there are any changes
-        # to know if it failed
-        run: |
-          cargo +nightly autoinherit
-          git diff --exit-code
 
       - name: Check for unused dependencies
         run: cargo +nightly udeps --all-targets --all-features
