@@ -21,6 +21,7 @@ test:
     @cargo mutants --colors=always --all-features --error true --no-shuffle --iterate
     @cargo deny check
     @cargo semver-checks
+    @cargo tree | grep openssl && exit 1 || exit 0
 
 clean:
     @cargo clean

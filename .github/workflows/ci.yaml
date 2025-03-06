@@ -71,6 +71,12 @@ jobs:
           name: mutants-out
           path: mutants.out
 
+      # Check cargo deny
+      - name: Install cargo-deny
+        run: cargo install cargo-deny
+      - name: Check cargo-deny
+        run: cargo deny check
+
       # Build an artifact for this job
       - name: Build release binary
         run: cargo build --release
