@@ -1,0 +1,53 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "assignees": [
+    "josiahbull"
+  ],
+  "automergeType": "branch",
+  "extends": [
+    "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "automerge": true,
+      "groupName": "monthly",
+      "matchUpdateTypes": [
+        "bump",
+        "digest",
+        "lockFileMaintenance",
+        "minor",
+        "patch",
+        "pin",
+        "pinDigest",
+        "replacement"
+      ],
+      "minimumReleaseAge": "30 days",
+      "schedule": [
+        "at 00:00 on the first day of the month"
+      ]
+    },
+    {
+      "automerge": true,
+      "groupName": "major-monthly",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "minimumReleaseAge": "90 days",
+      "schedule": [
+        "at 00:00 on the first day of the month"
+      ]
+    },
+    {
+      "automerge": true,
+      "groupName": "semi-annual",
+      "matchPackageNames": [
+        "*telemetry*",
+        "*otel*"
+      ],
+      "minimumReleaseAge": "180 days",
+      "schedule": [
+        "at 00:00 on the first day of January and July"
+      ]
+    }
+  ]
+}

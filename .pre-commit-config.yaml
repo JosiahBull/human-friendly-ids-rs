@@ -1,0 +1,32 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: debug-statements
+      - id: detect-private-key
+      - id: mixed-line-ending
+      - id: pretty-format-json
+        args: ["--autofix"]
+        exclude: ".devcontainer/devcontainer.json"
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-merge-conflict
+        files: ".*\\.(?:tex|py)$"
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: Cargo Nightly Fmt
+        entry: cargo +nightly fmt -- --color always
+        language: system
+        types: [rust]
+      - id: cargo-clippy
+        name: Cargo Clippy
+        entry: cargo clippy --color always --all-features --all-targets --workspace -- -D warnings
+        language: system
+        types: [rust]
+        files: \.rs$
+        pass_filenames: false

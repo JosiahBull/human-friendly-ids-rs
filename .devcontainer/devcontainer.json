@@ -1,0 +1,70 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/alpine
+{
+	"name": "HumanFriendlyIds",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			"USERNAME": "${localEnv:USER}"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"DavidAnson.vscode-markdownlint",
+				"jkiviluoto.tws",
+				"stkb.rewrap",
+				"vadimcn.vscode-lldb",
+				"ryanluker.vscode-coverage-gutters",
+				"fill-labs.dependi",
+				"ms-vscode-remote.remote-containers",
+				"tamasfe.even-better-toml",
+				"github.vscode-github-actions",
+				"GitHub.copilot",
+				"GitHub.copilot-chat",
+				"eamodio.gitlens",
+				"ms-vscode.live-server",
+				"chang196700.newline",
+				"ms-vscode-remote.remote-ssh",
+				"ms-vscode-remote.remote-ssh-edit",
+				"ms-vscode.remote-explorer",
+				"rust-lang.rust-analyzer",
+				"Gruntfuggly.todo-tree",
+				"redhat.vscode-yaml",
+				"nefrob.vscode-just-syntax"
+			]
+		}
+	},
+	"mounts": [
+		// Mount the gpg key for signing commits
+		"source=${localEnv:HOME}/.gnupg,target=/home/${localEnv:USER}/.gnupg,type=bind,readonly=true",
+		// Mount the ssh keys for git
+		"source=${localEnv:HOME}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly=true",
+		// Mout the gitconfig for git
+		"source=${localEnv:HOME}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind,readonly=false",
+		// Mount zsh_history
+		"source=${localEnv:HOME}/.zsh_history,target=/home/${localEnv:USER}/.zsh_history,type=bind,readonly=false",
+		// Mount bash_history
+		"source=${localEnv:HOME}/.bash_history,target=/home/${localEnv:USER}/.bash_history,type=bind,readonly=false",
+		// Mount the docker socket for most unix-like systems
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind,readonly=false"
+	],
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [
+		3000
+	],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "pre-commit install",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "${localEnv:USER}"
+}
