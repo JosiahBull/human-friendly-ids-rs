@@ -1,0 +1,4 @@
+allow-branch=[ "main" ]
+sign-commit = true
+sign-tag = true
+release = true
