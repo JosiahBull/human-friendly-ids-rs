@@ -24,7 +24,7 @@ need to avoid generating such ids, you should filter them out after generating t
 
 ```toml
 [dependencies]
-human_friendly_ids = "0.1.0"
+human_friendly_ids = "0.1.1"
 ```
 
 ### Usage
@@ -48,5 +48,5 @@ If you would like to contribute to this project, please open an issue or a pull 
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Please observer the [Unicode-3.0](https://www.unicode.org/license.txt) license for the relevant code
+Please observe the [Unicode-3.0](https://www.unicode.org/license.txt) license for the relevant code
 included in this library.
