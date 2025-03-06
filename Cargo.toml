@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/JosiahBull/human-friendly-ids-rs"
 keywords = ["ids", "uuid", "human-readable", "human-friendly", "non-ambiguous"]
 authors = ["Josiah Bull <josiah.bull7@gmail.com>"]
-categories = ["algorithms", "encoding", "cryptography", "security"]
+categories = ["algorithms", "encoding", "cryptography"]
 documentation = "https://docs.rs/human-friendly-ids"
 
 [dependencies]
