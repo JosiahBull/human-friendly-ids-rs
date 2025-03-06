@@ -1,6 +1,8 @@
 # Human Friendly Ids
 
-[![CI](https://github.com/JosiahBull/send/actions/workflows/tests/badge.svg)](https://github.com/JosiahBull/send/actions/workflows/tests)
+[![CI](https://github.com/JosiahBull/human-friendly-ids-rs/actions/workflows/ci.yaml/badge.svg)](https://github.com/JosiahBull/human-friendly-ids-rs/actions/workflows/ci.yaml)
+[![Crates.io](https://img.shields.io/crates/v/human_friendly_ids)](https://crates.io/crates/human_friendly_ids)
+[![Docs.rs](https://docs.rs/human_friendly_ids/badge.svg)](https://docs.rs/human_friendly_ids)
 
 This Rust library is used for generating random human-friendly ids with a base-23 character set. The
 ids are generated using a cryptographically secure random number generator.

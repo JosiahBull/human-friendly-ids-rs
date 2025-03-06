@@ -21,7 +21,7 @@ RUN cargo install --locked cargo-semver-checks
 RUN cargo install --locked cargo-deny
 
 # Install python tools.
-RUN pip3 install pre-commit
+RUN pip3 install pre-commit thefuck
 
 # Copy everything over from /root to /home/$USERNAME
 RUN cp -r /root/. /home/$USERNAME
