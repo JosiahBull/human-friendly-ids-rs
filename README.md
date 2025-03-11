@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/JosiahBull/human-friendly-ids-rs/actions/workflows/ci.yaml/badge.svg)](https://github.com/JosiahBull/human-friendly-ids-rs/actions/workflows/ci.yaml)
 [![Crates.io](https://img.shields.io/crates/v/human_friendly_ids)](https://crates.io/crates/human_friendly_ids)
-[![Docs.rs](https://docs.rs/human_friendly_ids/badge.svg)](https://docs.rs/human_friendly_ids)
+[![Docs.rs](https://docs.rs/human-friendly-ids/badge.svg)](https://docs.rs/human_friendly_ids)
 
 This Rust library is used for generating random human-friendly ids with a base-23 character set. The
 ids are generated using a cryptographically secure random number generator.
@@ -24,19 +24,15 @@ need to avoid generating such ids, you should filter them out after generating t
 
 ```toml
 [dependencies]
-human_friendly_ids = "0.1.1"
+human_friendly_ids = "0.2.0"
 ```
 
 ### Usage
 
 ```rust
-use human_friendly_ids::{UploadId, UploadIdDist};
-use rand::{Rng, distr::Distribution, thread_rng};
+use human_friendly_ids::Id;
 
-let mut rng = thread_rng();
-let dist = UploadIdDist::<12>;
-
-let id = dist.sample(&mut rng);
+let id = Id::new(12);
 println!("Generated ID: {}", id);
 ```
 

@@ -3,6 +3,8 @@
 
 use std::{fmt, str::FromStr};
 
+use rand::Rng;
+
 use crate::{
     alphabet::{self, CHECK_ALPHABET},
     error::IdError,
@@ -12,16 +14,16 @@ use crate::{
 ///
 /// # Example
 /// ```no_run
-/// use human_friendly_ids::UploadId;
+/// use human_friendly_ids::Id;
 /// use std::str::FromStr;
 ///
-/// let id = UploadId::from_str("abc-").unwrap();
+/// let id = Id::from_str("abc-").unwrap();
 /// assert_eq!(id.as_str(), "abc-");
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct UploadId(pub(crate) String);
+pub struct Id(pub(crate) String);
 
-impl UploadId {
+impl Id {
     /// Get string slice representation
     #[must_use]
     pub fn as_str(&self) -> &str {
@@ -44,17 +46,61 @@ impl UploadId {
         let max_value = u64::MAX / (CHECK_ALPHABET.len() - 1) as u64;
         (max_value + 1) as usize
     }
+
+    /// Generate a new ID with a given length
+    ///
+    /// See: [`Id::new`] if you want to use the default RNG.
+    ///
+    #[allow(
+        clippy::missing_panics_doc,
+        reason = "Internal invariant - won't generate a string that would panic."
+    )]
+    #[must_use]
+    pub fn new_with_rng<R: Rng>(len: usize, rng: &mut R) -> Self {
+        let mut body = String::with_capacity(len.saturating_sub(1));
+        let mut last_char = None;
+
+        while body.len() < len.saturating_sub(1) {
+            let idx = rng.random_range(0..alphabet::GEN_ALPHABET.len());
+            #[allow(clippy::indexing_slicing, reason = "index is generated within bounds")]
+            let c = alphabet::GEN_ALPHABET[idx];
+            // Avoid ambiguous sequences
+            match (last_char, c) {
+                (Some('r'), 'n') | (Some('v'), 'v') => {}
+                // Don't end with 'r' or 'v', because the check-bit could create an ambiguous sequence
+                (_, 'r' | 'v') if body.len() == len.saturating_sub(2) => {}
+                _ => {
+                    body.push(c);
+                    last_char = Some(c);
+                }
+            }
+        }
+
+        let check_char = alphabet::calculate_check_char(&body)
+            .expect("Generated body should be valid for check calculation");
+
+        Id(format!("{}{}", body, check_char))
+    }
+
+    /// Generate a new ID with a given length
+    ///
+    /// This method uses the default RNG from the `rand` crate.
+    #[must_use]
+    pub fn new(len: usize) -> Self {
+        let mut rng = rand::rng();
+        Self::new_with_rng(len, &mut rng)
+    }
 }
 
 #[cfg_attr(test, mutants::skip)]
-impl AsRef<str> for UploadId {
+impl AsRef<str> for Id {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
 #[cfg_attr(test, mutants::skip)]
-impl std::ops::Deref for UploadId {
+impl std::ops::Deref for Id {
     type Target = str;
 
     fn deref(&self) -> &Self::Target {
@@ -63,20 +109,20 @@ impl std::ops::Deref for UploadId {
 }
 
 #[cfg_attr(test, mutants::skip)]
-impl From<UploadId> for String {
-    fn from(id: UploadId) -> Self {
+impl From<Id> for String {
+    fn from(id: Id) -> Self {
         id.0
     }
 }
 
 #[cfg_attr(test, mutants::skip)]
-impl From<UploadId> for Box<str> {
-    fn from(id: UploadId) -> Self {
+impl From<Id> for Box<str> {
+    fn from(id: Id) -> Self {
         id.0.into_boxed_str()
     }
 }
 
-impl FromStr for UploadId {
+impl FromStr for Id {
     type Err = IdError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -103,7 +149,7 @@ impl FromStr for UploadId {
     }
 }
 
-impl TryFrom<String> for UploadId {
+impl TryFrom<String> for Id {
     type Error = IdError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
@@ -111,7 +157,7 @@ impl TryFrom<String> for UploadId {
     }
 }
 
-impl fmt::Display for UploadId {
+impl fmt::Display for Id {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -126,21 +172,19 @@ impl fmt::Display for UploadId {
 ///
 /// ```
 /// use serde::{Serialize, Deserialize};
-/// use human_friendly_ids::UploadId;
+/// use human_friendly_ids::Id;
 ///
 /// #[derive(Serialize, Deserialize)]
 /// struct MyStruct {
-///     id: UploadId,
+///     id: Id,
 /// }
 /// ```
-///
-/// For further information, visit [Clippy's missing_docs_in_private_items](https://rust-lang.github.io/rust-clippy/master/index.html#missing_docs_in_private_items).
 mod serde_impl {
     use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error};
 
-    use super::UploadId;
+    use super::Id;
 
-    impl Serialize for UploadId {
+    impl Serialize for Id {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where
             S: Serializer,
@@ -149,7 +193,7 @@ mod serde_impl {
         }
     }
 
-    impl<'de> Deserialize<'de> for UploadId {
+    impl<'de> Deserialize<'de> for Id {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where
             D: Deserializer<'de>,
@@ -165,13 +209,13 @@ mod serde_impl {
 
         #[test]
         fn test_serde_roundtrip() {
-            let id = UploadId::try_from("wcfytxww4opin4jmjjes4ccfd".to_string())
+            let id = Id::try_from("wcfytxww4opin4jmjjes4ccfd".to_string())
                 .expect("Failed to decode UploadId");
             let serialized = serde_json::to_string(&id).expect("Failed to serialize UploadId");
 
             insta::assert_json_snapshot!(serialized);
 
-            let deserialized: UploadId =
+            let deserialized: Id =
                 serde_json::from_str(&serialized).expect("Failed to deserialize UploadId");
             assert_eq!(id, deserialized);
 

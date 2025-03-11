@@ -1,0 +1,9 @@
+---
+source: src/alphabet.rs
+expression: "json!({ \"id\": id, \"check\": check.unwrap(), \"formatted_id\": formatted_id })"
+---
+{
+  "check": "e",
+  "formatted_id": "mmmmme",
+  "id": "rnmrnmrn"
+}

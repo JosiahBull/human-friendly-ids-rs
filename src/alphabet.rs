@@ -3,16 +3,16 @@
 
 use crate::error::IdError;
 
-/// Primary generation alphabet (22 characters)
-pub const GEN_ALPHABET: [char; 22] = [
+/// Primary generation alphabet (23 characters)
+pub const GEN_ALPHABET: [char; 23] = [
     'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'j', 'k', 'm', 'n', 'o', 'p', 'r', 's', 't', 'w', 'x',
-    'y', '3', '4',
+    'y', '3', '4', 'v',
 ];
 
-/// Check bit alphabet (23 characters, prime number length)
+/// Check bit alphabet (23 characters)
 pub const CHECK_ALPHABET: [char; 23] = [
     'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'j', 'k', 'm', 'n', 'o', 'p', 'r', 's', 't', 'w', 'x',
-    'y', '3', '4', '-',
+    'y', '3', '4', 'v',
 ];
 
 /// LUT for check alphabet character lookup
@@ -41,8 +41,7 @@ pub const fn normalize_char(c: char) -> char {
     match c {
         '0' => 'o',
         '1' | 'l' | '7' => 'i',
-        '5' => 's',
-        '2' => 'z',
+        'z' | '5' | '2' => 's',
         'u' => 'v',
         '6' | '8' | '9' | 'g' | 'q' => 'b',
         c => c,
@@ -112,9 +111,108 @@ pub fn calculate_check_char(s: &str) -> Result<char, IdError> {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use serde_json::json;
+
+    use crate::{Id, alphabet::normalize_string};
+
     #[test]
     fn snapshot_lut() {
         // A silly test to satisfy cargo mutants.
         insta::assert_debug_snapshot!(crate::alphabet::CHECK_LOOKUP);
+    }
+
+    #[test]
+    fn edge_case_1() {
+        let id = String::from("9qg6G8B2Z5SIl170O");
+        let check = crate::alphabet::calculate_check_char(&normalize_string(&id));
+        let formatted_id = Id::from_str(&format!("{}{}", id, check.clone().unwrap())).unwrap();
+        insta::assert_json_snapshot!(json!({
+            "id": id,
+            "check": check.unwrap(),
+            "formatted_id": formatted_id
+        }));
+    }
+
+    #[test]
+    fn edge_case_2() {
+        let id = String::from("Il717il");
+        let check = crate::alphabet::calculate_check_char(&normalize_string(&id));
+        let formatted_id = Id::from_str(&format!("{}{}", id, check.clone().unwrap())).unwrap();
+        insta::assert_json_snapshot!(json!({
+            "id": id,
+            "check": check.unwrap(),
+            "formatted_id": formatted_id
+        }));
+    }
+
+    #[test]
+    fn edge_case_3() {
+        let id = String::from("5s25zs5");
+        let check = crate::alphabet::calculate_check_char(&normalize_string(&id));
+        let formatted_id = Id::from_str(&format!("{}{}", id, check.clone().unwrap())).unwrap();
+        insta::assert_json_snapshot!(json!({
+            "id": id,
+            "check": check.unwrap(),
+            "formatted_id": formatted_id
+        }));
+    }
+
+    #[test]
+    fn edge_case_4() {
+        let id = String::from("6G6GGG6");
+        let check = crate::alphabet::calculate_check_char(&normalize_string(&id));
+        let formatted_id = Id::from_str(&format!("{}{}", id, check.clone().unwrap())).unwrap();
+        insta::assert_json_snapshot!(json!({
+            "id": id,
+            "check": check.unwrap(),
+            "formatted_id": formatted_id
+        }));
+    }
+    #[test]
+    fn edge_case_5() {
+        let id = String::from("0oO0OooO");
+        let check = crate::alphabet::calculate_check_char(&normalize_string(&id));
+        let formatted_id = Id::from_str(&format!("{}{}", id, check.clone().unwrap())).unwrap();
+        insta::assert_json_snapshot!(json!({
+            "id": id,
+            "check": check.unwrap(),
+            "formatted_id": formatted_id
+        }));
+    }
+    #[test]
+    fn edge_case_6() {
+        let id = String::from("rnmrnmrn");
+        let check = crate::alphabet::calculate_check_char(&normalize_string(&id));
+        let formatted_id = Id::from_str(&format!("{}{}", id, check.clone().unwrap())).unwrap();
+        insta::assert_json_snapshot!(json!({
+            "id": id,
+            "check": check.unwrap(),
+            "formatted_id": formatted_id
+        }));
+    }
+    #[test]
+    fn edge_case_7() {
+        let id = String::from("vuuvvnwvvwv");
+        let check = crate::alphabet::calculate_check_char(&normalize_string(&id));
+        let formatted_id = Id::from_str(&format!("{}{}", id, check.clone().unwrap())).unwrap();
+        insta::assert_json_snapshot!(json!({
+            "id": id,
+            "check": check.unwrap(),
+            "formatted_id": formatted_id
+        }));
+    }
+    #[test]
+    fn edge_case_8() {
+        // audibly ambiguous id.
+        let id = String::from("bbbpbpb");
+        let check = crate::alphabet::calculate_check_char(&normalize_string(&id));
+        let formatted_id = Id::from_str(&format!("{}{}", id, check.clone().unwrap())).unwrap();
+        insta::assert_json_snapshot!(json!({
+            "id": id,
+            "check": check.unwrap(),
+            "formatted_id": formatted_id
+        }));
     }
 }
