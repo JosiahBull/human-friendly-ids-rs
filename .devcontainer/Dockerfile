@@ -9,6 +9,9 @@ RUN groupadd --gid $USER_GID $USERNAME || true \
   && chmod 0440 /etc/sudoers.d/$USERNAME \
   && chsh -s /bin/zsh $USERNAME
 
+# Install Nano
+RUN sudo apt-get update && sudo apt-get install -y nano && sudo apt-get clean
+
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"

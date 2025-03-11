@@ -15,7 +15,7 @@ format:
 
 # Run tests and check for unused dependencies
 test:
-    @cargo test
+    @cargo test --all-features --all-targets
     @cargo +nightly udeps
     @cargo +nightly clippy
     @cargo mutants --colors=always --all-features --error true --no-shuffle --iterate -vV

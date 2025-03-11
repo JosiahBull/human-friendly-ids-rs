@@ -2,6 +2,6 @@
 source: src/id.rs
 expression: deserialized
 ---
-UploadId(
+Id(
     "wcfytxww4opin4jmjjes4ccfd",
 )

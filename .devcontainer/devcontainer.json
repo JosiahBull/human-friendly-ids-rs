@@ -48,7 +48,9 @@
 		// Mount bash_history
 		"source=${localEnv:HOME}/.bash_history,target=/home/${localEnv:USER}/.bash_history,type=bind,readonly=false",
 		// Mount the docker socket for most unix-like systems
-		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind,readonly=false"
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind,readonly=false",
+		// Mount the cargo token for publishing.
+		"source=${localEnv:HOME}/.cargo/credentials.toml,target=/home/${localEnv:USER}/.cargo/credentials.toml,type=bind,readonly=true"
 	],
 
 	// Features to add to the dev container. More info: https://containers.dev/features.

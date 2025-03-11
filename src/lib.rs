@@ -3,14 +3,10 @@
 #![allow(clippy::uninlined_format_args)]
 
 pub mod alphabet;
-pub mod distribution;
 pub mod error;
 pub mod id;
 
-// Re-export main types for convenience
-pub use distribution::UploadIdDist;
-
-pub use crate::id::UploadId;
+pub use crate::id::Id;
 
 #[allow(
     clippy::all,
@@ -22,27 +18,26 @@ pub use crate::id::UploadId;
 mod tests {
     use std::convert::TryFrom;
 
-    use rand::{Rng, distr::Distribution};
+    use rand::Rng;
 
     use super::*;
     use crate::alphabet::GEN_ALPHABET;
 
     #[test]
     fn assert_largest_id_is_fixed() {
-        let largest = UploadId::max_length();
+        let largest = Id::max_length();
         assert_eq!(largest, 838_488_366_986_797_801); // Absurdly large number, but it's fixed.
 
         // Try and generate an id with a very large length, notably this will allocate a string
         // of this size.
         const TEST_SIZE: usize = 1024 * 1024; // 1mb
 
-        let mut rng = rand::rng();
-        let id = UploadIdDist::<TEST_SIZE>.sample(&mut rng);
+        let id = Id::new(TEST_SIZE);
         assert_eq!(id.as_str().len(), TEST_SIZE);
 
         // Decode and re-encode the id.
         let id_str = id.to_string();
-        let id_decoded: UploadId = id_str.parse().expect("Failed to decode UploadId");
+        let id_decoded: Id = id_str.parse().expect("Failed to decode UploadId");
 
         assert_eq!(id_decoded.to_string(), id_str);
     }
@@ -50,7 +45,7 @@ mod tests {
     #[test]
     fn test_decode() {
         let test_string = String::from("wcfytxww4opin4jmjjes4ccfd");
-        let decoded = UploadId::try_from(test_string).expect("Failed to decode UploadId");
+        let decoded = Id::try_from(test_string).expect("Failed to decode UploadId");
         assert_eq!(
             decoded.as_str(),
             "wcfytxww4opin4jmjjes4ccfd",
@@ -61,14 +56,13 @@ mod tests {
     #[test]
     fn fuzz_generated_ids() {
         for _ in 0_u64..10_000_u64 {
-            let mut rng = rand::rng();
-            let id = UploadIdDist::<25>.sample(&mut rng);
+            let id = Id::new(25);
             println!("{}", id);
             assert_eq!(id.as_str().len(), 25);
 
             // Assert that serializing and deserializing the id doesn't change it.
             let id_str = id.to_string();
-            let id = UploadId::try_from(id_str.clone()).expect("Failed to decode UploadId");
+            let id = Id::try_from(id_str.clone()).expect("Failed to decode UploadId");
             assert_eq!(id.to_string(), id_str);
         }
     }
@@ -83,7 +77,7 @@ mod tests {
                 .collect::<String>();
 
             // Try and decode it - should not panic.
-            UploadId::try_from(string.clone());
+            Id::try_from(string.clone());
         }
     }
 
@@ -97,14 +91,14 @@ mod tests {
                 .collect::<String>();
 
             // Try and decode it - should not panic.
-            UploadId::try_from(string.clone());
+            Id::try_from(string.clone());
         }
     }
 
     #[test]
     fn test_invalid_chars_error() {
         let id = "abc123".to_string();
-        let result = UploadId::try_from(id);
+        let result = Id::try_from(id);
         assert!(result.is_err());
         let err = result.expect_err("Should fail due to invalid characters");
         assert_eq!(err.to_string(), "Invalid check bit");
@@ -113,7 +107,7 @@ mod tests {
     #[test]
     fn test_invalid_check_bit_error() {
         let invalid_id = String::from("abbsyhbbb4tyxnnmrtjx4crom");
-        let result = UploadId::try_from(invalid_id);
+        let result = Id::try_from(invalid_id);
         assert!(result.is_err());
         let err = result.expect_err("Should fail due to invalid check-bit");
         assert_eq!(err.to_string(), "Invalid check bit");
@@ -122,7 +116,7 @@ mod tests {
     #[test]
     fn test_too_short_error() {
         let invalid_id = String::from("aa");
-        let result = UploadId::try_from(invalid_id);
+        let result = Id::try_from(invalid_id);
         assert!(result.is_err());
         let err = result.expect_err("Should fail due to invalid check-bit");
         assert_eq!(err.to_string(), "ID length too short, minimum 3 characters");
@@ -131,7 +125,7 @@ mod tests {
     #[test]
     fn test_weird_unicode() {
         let invalid_id = String::from("🦀🦀🦀");
-        let result = UploadId::try_from(invalid_id);
+        let result = Id::try_from(invalid_id);
         assert!(result.is_err());
         let err = result.expect_err("Should fail due to invalid characters");
         assert_eq!(err.to_string(), "Invalid character in ID");
@@ -140,7 +134,7 @@ mod tests {
     #[test]
     fn test_invalid_chars() {
         let invalid_id = String::from("¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿gg");
-        let result = UploadId::try_from(invalid_id);
+        let result = Id::try_from(invalid_id);
         assert!(result.is_err());
         let err = result.expect_err("Should fail due to invalid characters");
         assert_eq!(err.to_string(), "Invalid character in ID");
