@@ -9,22 +9,10 @@ RUN groupadd --gid $USER_GID $USERNAME || true \
   && chmod 0440 /etc/sudoers.d/$USERNAME \
   && chsh -s /bin/zsh $USERNAME
 
-# Install Nano
-RUN sudo apt-get update && sudo apt-get install -y nano && sudo apt-get clean
-
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup toolchain install nightly
-
-# TODO: move to base image.
-RUN cargo install --locked cargo-insta
-RUN cargo install --locked cargo-release
-RUN cargo install --locked cargo-semver-checks
-RUN cargo install --locked cargo-deny
-
-# Install python tools.
-RUN pip3 install pre-commit thefuck
 
 # Copy everything over from /root to /home/$USERNAME
 RUN cp -r /root/. /home/$USERNAME
